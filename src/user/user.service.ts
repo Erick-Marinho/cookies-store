@@ -5,20 +5,25 @@ import { Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { UserDocument } from 'src/schemas/user.schema';
 import { User } from './entities/user.entity';
+import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class UserService {
   constructor(@InjectModel(User.name) private userModel: Model<UserDocument>) {}
 
   async create(createUserDto: CreateUserDto) {
-    const { email } = createUserDto;
-    const user = new this.userModel(createUserDto);
+    const { email, password } = createUserDto;
+    const salt = await bcrypt.genSalt();
+    const hash = await bcrypt.hash(password, salt);
+    const user = new this.userModel({ email: email, password: hash });
     const findUser = await this.userModel.findOne({ email }).exec();
+
     if (findUser) {
       throw new ConflictException('Usuário já cadastrado');
+    } else {
+      await user.save();
+      return { message: 'Usuário cadastrado com sucesso' };
     }
-    user.save();
-    return { message: 'Usuário cadastrado com sucesso' };
   }
 
   async findAll() {
