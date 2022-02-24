@@ -13,7 +13,7 @@ export class UserService {
   async create(createUserDto: CreateUserDto) {
     const { email } = createUserDto;
     const user = new this.userModel(createUserDto);
-    const findUser = await this.userModel.findOne({ email });
+    const findUser = await this.userModel.findOne({ email }).exec();
     if (findUser) {
       throw new ConflictException('Usuário já cadastrado');
     }
@@ -21,19 +21,26 @@ export class UserService {
     return { message: 'Usuário cadastrado com sucesso' };
   }
 
-  findAll() {
-    return `This action returns all user`;
+  async findAll() {
+    return this.userModel.find().exec();
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} user`;
+  async findOne(id: string) {
+    return this.userModel.findById(id);
   }
 
-  update(id: number, updateUserDto: UpdateUserDto) {
-    return `This action updates a #${id} user`;
+  async getByEmail(email: string): Promise<User> {
+    const findUser = await this.userModel.findOne({ email }).exec();
+    return findUser;
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} user`;
+  async update(id: string, updateUserDto: UpdateUserDto) {
+    await this.userModel.updateOne({ id }, { ...updateUserDto });
+    return { message: `Usuário ${id} atualizado com sucesso` };
+  }
+
+  async remove(id: number) {
+    await this.userModel.deleteOne({ id });
+    return { message: `Usuário deletado com sucesso` };
   }
 }
