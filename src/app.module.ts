@@ -1,9 +1,10 @@
 import { Module } from '@nestjs/common';
-import { UserModule } from './user/user.module';
+import { UserModule } from './modules/user/user.module';
 import serverConfig from './config/server.config';
 import { ConfigModule } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
 import { AuthModule } from './auth/auth.module';
+import { ProductsModule } from './modules/products/products.module';
 
 @Module({
   imports: [
@@ -14,6 +15,7 @@ import { AuthModule } from './auth/auth.module';
       isGlobal: true,
       load: [serverConfig],
     }),
+    ProductsModule,
   ],
 
   controllers: [],
